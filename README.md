@@ -1,39 +1,61 @@
 # Ceefax 2026
 
-A Python web app with a retro teletext feel and numbered pages as its main navigation.
+A small Python web app inspired by the old Ceefax and Teletext services. Enter a page number to see UK headlines, weather, transport updates, electricity carbon intensity, or a short chiptune made from text.
 
-## Run
+## Run it on your computer
 
-From the project folder:
+You need Python 3.14 or later and an internet connection for the live information pages.
+
+From this folder, run:
 
 ```sh
-cd ceefax-2026 && python3 app.py
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install certifi
+python app.py
 ```
 
-Open the URL printed in the terminal. The app normally uses `http://127.0.0.1:8000`; if that is occupied, it automatically tries the next available port through `8019`.
+Open the address printed in the terminal. It will usually be `http://127.0.0.1:8000`. If that port is busy, the app tries the next few ports and prints the one it uses.
+
+To stop the app, click the terminal and press **Control+C**.
 
 ## Pages
 
-- **100** — Page index
-- **101** — BBC UK headlines
-- **401** — UK postcode weather; the postcode is remembered for the current browser visit
-- **501** — London Underground status
-- **601** — Great Britain electricity carbon intensity
-- **701** — Other London transport statuses
-- **777** — Bonus text-to-chiptune studio
+| Number | Page |
+| --- | --- |
+| 100 | Page index |
+| 101 | BBC UK headlines |
+| 401 | Weather for a UK postcode |
+| 501 | London Underground status |
+| 601 | Great Britain electricity carbon intensity |
+| 701 | Other London transport updates |
+| 777 | Text-to-chiptune studio |
 
-Use the page-number field and press Enter, choose a page from the Page 100 channel grid, or use the Fastext buttons. Each data page has a Home control, refresh button, and update time. If a feed is unreachable, the page shows an offline message and the rest of Ceefax continues to work.
+Type a page number and press Enter, or choose a page from the index. Use **Refresh** to fetch the latest information again. The weather postcode is remembered for the current browser session.
 
-Weather uses Postcodes.io to geocode the postcode and Open-Meteo for current conditions. News comes from the BBC UK RSS feed; Tube and wider transport statuses come from the TfL Unified API; carbon intensity comes from the NESO Carbon Intensity API. Live data requires an internet connection. The optional radio feature is omitted because a reliably working stream with clear permission for embedding could not be verified.
+## How the music page works
 
-## Deploy to Render
+Enter a short phrase and choose a mood, or leave mood selection on Auto. The Python app maps the characters to notes from a five-note musical scale, then writes the notes into a WAV file. The browser plays the file and draws its waveform. Auto mood uses a small list of words associated with upbeat or moody text; it does not use AI to interpret the phrase.
 
-This project includes a `Dockerfile` so it can be hosted as a public Python web service. Render is the simplest route for a hackathon submission because it can build directly from a GitHub repository and gives the app a public `onrender.com` URL.
+**Sample London Data** uses the current Tube status to make a phrase, then turns that phrase into a tune. The music is generated locally by this app; it is not a radio stream.
 
-1. Push this `ceefax-2026` project folder to a GitHub repository.
-2. Create a Render account and select **New → Web Service**.
-3. Connect the repository and choose the **Docker** runtime. If the repository contains other projects, set its root directory to `ceefax-2026`.
-4. Deploy. Render provides the `PORT` environment variable automatically; Ceefax binds to it on `0.0.0.0` in production.
-5. Copy the resulting `https://…onrender.com` address into the submission's website or demo URL field.
+## Live information
 
-Render's free service can sleep after inactivity, so open the link shortly before presenting it. It may take a short time to wake on the first visit.
+The app fetches data when a page is opened or refreshed. It uses:
+
+- BBC UK RSS feed for headlines
+- Postcodes.io to find a postcode's location
+- Open-Meteo for current weather
+- Transport for London's API for Tube and other London transport statuses
+- The Carbon Intensity API for Great Britain electricity data
+
+Live pages need an internet connection. If a service is unavailable, that page shows an error message; the other pages can still be used.
+
+## Project files
+
+- `app.py` runs the web server, live data requests, and music generator.
+- `templates/index.html` contains the page structure shown in the browser.
+- `static/style.css` contains the retro look and responsive layout.
+- `static/app.js` handles page navigation, live page requests, and audio playback.
+- `pyproject.toml` records the project name, Python requirement, and dependency.
+- `Dockerfile` describes how to run the app in a container.
