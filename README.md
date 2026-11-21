@@ -53,9 +53,6 @@ Live pages need an internet connection. If a service is unavailable, that page s
 
 ## Project files
 
-- `app.py` runs the web server, live data requests, and music generator.
-- `templates/index.html` contains the page structure shown in the browser.
-- `static/style.css` contains the retro look and responsive layout.
-- `static/app.js` handles page navigation, live page requests, and audio playback.
+- `app.py` is the Python entry point for the app.
 - `pyproject.toml` records the project name, Python requirement, and dependency.
 - `Dockerfile` describes how to run the app in a container.
