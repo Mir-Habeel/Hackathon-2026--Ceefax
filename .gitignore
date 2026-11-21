@@ -1,0 +1,12 @@
+# Python build and cache files
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local IDE and operating-system files
+.idea/
+*.iml
+.DS_Store
+
+# Local environment configuration
+.env
