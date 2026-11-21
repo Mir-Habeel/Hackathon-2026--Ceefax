@@ -78,6 +78,23 @@ def postcode_location(postcode: str) -> dict | None:
     }
 
 
+def current_weather(latitude: float, longitude: float) -> dict:
+    """Get conditions from Open-Meteo, then MET Norway if it is unavailable."""
+    descriptions = {0: "CLEAR SKY", 1: "MAINLY CLEAR", 2: "PARTLY CLOUDY", 3: "OVERCAST", 45: "FOG", 48: "RIME FOG", 51: "LIGHT DRIZZLE", 53: "DRIZZLE", 55: "HEAVY DRIZZLE", 61: "LIGHT RAIN", 63: "RAIN", 65: "HEAVY RAIN", 71: "LIGHT SNOW", 73: "SNOW", 75: "HEAVY SNOW", 80: "RAIN SHOWERS", 81: "SHOWERS", 82: "HEAVY SHOWERS", 95: "THUNDERSTORM", 96: "THUNDERSTORM + HAIL", 99: "THUNDERSTORM + HAIL"}
+    try:
+        params = urllib.parse.urlencode({"latitude": latitude, "longitude": longitude, "current": "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m", "timezone": "auto"})
+        current = fetch_json("https://api.open-meteo.com/v1/forecast?" + params)["current"]
+        return {"temperature": round(current["temperature_2m"]), "apparent": round(current["apparent_temperature"]), "humidity": current["relative_humidity_2m"], "precipitation": current["precipitation"], "wind": round(current["wind_speed_10m"]), "description": descriptions.get(current.get("weather_code"), "CURRENT CONDITIONS")}
+    except (OSError, ValueError, KeyError, TypeError, urllib.error.URLError):
+        params = urllib.parse.urlencode({"lat": latitude, "lon": longitude})
+        timeseries = fetch_json("https://api.met.no/weatherapi/locationforecast/2.0/compact?" + params)["properties"]["timeseries"][0]["data"]
+        details = timeseries["instant"]["details"]
+        symbol = (timeseries.get("next_1_hours") or timeseries.get("next_6_hours") or timeseries.get("next_12_hours") or {}).get("summary", {}).get("symbol_code", "")
+        description = "RAIN" if "rain" in symbol else "SNOW" if "snow" in symbol else "FOG" if "fog" in symbol else "CLOUDY" if "cloudy" in symbol else "CLEAR"
+        precipitation = (timeseries.get("next_1_hours") or {}).get("details", {}).get("precipitation_amount", 0)
+        return {"temperature": round(details["air_temperature"]), "apparent": round(details["air_temperature"]), "humidity": round(details.get("relative_humidity", 0)), "precipitation": precipitation, "wind": round(details.get("wind_speed", 0) * 3.6), "description": description}
+
+
 def news_data() -> dict:
     try:
         xml = ElementTree.fromstring(fetch_bytes("https://feeds.bbci.co.uk/news/uk/rss.xml"))
@@ -106,10 +123,8 @@ def weather_data(postcode: str) -> dict:
         result = postcode_location(postcode)
         if not result:
             return {"live": False, "updated": now_iso(), "postcode": postcode, "error": "POSTCODE NOT FOUND. CHECK IT AND TRY AGAIN."}
-        params = urllib.parse.urlencode({"latitude": result["latitude"], "longitude": result["longitude"], "current": "temperature_2m,apparent_temperature,relative_humidity_2m,precipitation,weather_code,wind_speed_10m", "timezone": "auto"})
-        current = fetch_json("https://api.open-meteo.com/v1/forecast?" + params)["current"]
-        descriptions = {0:"CLEAR SKY",1:"MAINLY CLEAR",2:"PARTLY CLOUDY",3:"OVERCAST",45:"FOG",48:"RIME FOG",51:"LIGHT DRIZZLE",53:"DRIZZLE",55:"HEAVY DRIZZLE",61:"LIGHT RAIN",63:"RAIN",65:"HEAVY RAIN",71:"LIGHT SNOW",73:"SNOW",75:"HEAVY SNOW",80:"RAIN SHOWERS",81:"SHOWERS",82:"HEAVY SHOWERS",95:"THUNDERSTORM",96:"THUNDERSTORM + HAIL",99:"THUNDERSTORM + HAIL"}
-        payload = {"live": True, "updated": now_iso(), "postcode": result.get("postcode", postcode), "location": result.get("admin_district") or result.get("region") or "UK LOCATION", "temperature": round(current["temperature_2m"]), "apparent": round(current["apparent_temperature"]), "humidity": current["relative_humidity_2m"], "precipitation": current["precipitation"], "wind": round(current["wind_speed_10m"]), "description": descriptions.get(current.get("weather_code"), "CURRENT CONDITIONS")}
+        reading = current_weather(result["latitude"], result["longitude"])
+        payload = {"live": True, "updated": now_iso(), "postcode": result.get("postcode", postcode), "location": result.get("admin_district") or result.get("region") or "UK LOCATION", **reading}
         WEATHER_CACHE[postcode] = (datetime.now(timezone.utc), payload)
         return payload
     except (OSError, ValueError, KeyError, TypeError, urllib.error.URLError) as exc:
