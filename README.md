@@ -2,6 +2,16 @@
 
 A small Python web app inspired by the old Ceefax and Teletext services. Enter a page number to see UK headlines, weather, transport updates, electricity carbon intensity, or a short chiptune made from text.
 
+**Live demo:** [hackathon-2026-ceefax.onrender.com](https://hackathon-2026-ceefax.onrender.com/)
+
+## Highlights
+
+- Familiar three-digit Ceefax navigation, Fastext buttons, and a live broadcast clock
+- Live BBC headlines, UK postcode weather, London transport, and grid carbon intensity
+- A resilient weather page with a cached response and postcode-lookup fallback
+- Page 777: a browser-playable square-wave chiptune generated from any text or live Tube updates
+- Responsive retro CRT presentation, packaged for one-click Docker deployment on Render
+
 ## Run it on your computer
 
 You need Python 3.14 or later and an internet connection for the live information pages.
@@ -56,3 +66,4 @@ Live pages need an internet connection. If a service is unavailable, that page s
 - `app.py` is the Python entry point for the app.
 - `pyproject.toml` records the project name, Python requirement, and dependency.
 - `Dockerfile` describes how to run the app in a container.
+- `templates/` and `static/` contain the broadcast-style interface.
