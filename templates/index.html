@@ -1,9 +1,28 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#000000"><title>Ceefax 2026 · Page 100</title><link rel="stylesheet" href="/static/style.css"></head>
-<body><main class="tv"><section class="screen">
-<header class="broadcast"><span class="current-page" id="headerPage">100</span><span class="channel">CEEFAX 1</span><time class="teletext-time" id="clock"></time></header>
-<form class="tune" id="pageForm"><button class="home" data-page="100" type="button">HOME 100</button><label for="pageInput">PAGE</label><input class="page-input" id="pageInput" value="100" maxlength="3" inputmode="numeric" pattern="[0-9]{3}" aria-label="Three digit page number"><button class="go" type="submit">GO</button><button class="refresh" id="refresh" type="button">REFRESH</button></form>
-<main class="page" id="view" aria-live="polite"><div class="message">TUNING IN…</div></main>
-<footer class="fastext" aria-label="Fastext navigation"><button class="fast-red" data-page="101">101 NEWS</button><button class="fast-green" data-page="401">401 WEATHER</button><button class="fast-yellow" data-page="501">501 TUBE</button><button class="fast-blue" data-page="777">777 8-BIT STUDIO</button></footer>
-</section></main>
-<script src="/static/app.js" defer></script></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101214">
+  <title>Ceefax — Live UK information</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="site-header">
+      <a class="brand" href="#100" data-page="100" aria-label="Ceefax home"><span class="brand-mark"></span>ceefax<span>2026</span></a>
+      <div class="header-meta"><span class="live-dot"></span><span>LIVE UK DATA</span><time id="clock"></time></div>
+      <form class="page-jump" id="pageForm"><label for="pageInput">PAGE</label><input id="pageInput" value="100" maxlength="3" inputmode="numeric" aria-label="Page number"><button type="submit">Go</button></form>
+    </header>
+    <nav class="page-nav" aria-label="Main pages">
+      <button data-page="100">Overview</button><button data-page="101">News</button><button data-page="401">Weather</button><button data-page="501">Transport</button><button data-page="601">Energy</button><button data-page="801">Sport</button>
+    </nav>
+    <main id="view" class="content" aria-live="polite"></main>
+    <footer><span>CEEFAX 2026</span><span>LIVE INFORMATION, CLEARLY PRESENTED</span><button id="refresh" type="button">Refresh data</button></footer>
+  </main>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>
